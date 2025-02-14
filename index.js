@@ -34,7 +34,7 @@ const {
 });
 
 function displayAppTitle() {
-    console.log('\n' + 
+    console.log('\n' +
         chalk.cyan(figlet.textSync(' HahaWallet ', { horizontalLayout: 'full' })) +
         '\n' + chalk.dim('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━') +
         '\n' + chalk.gray('By Mamangzed') +
@@ -70,7 +70,7 @@ async function login(email, password) {
 
 
 async function getKarmaPoint(bearer) {
-    const data = `{"operationName":null,"variables":{},"query":"{ getKarmaPoints }"}`; 
+    const data = `{"operationName":null,"variables":{},"query":"{ getKarmaPoints }"}`;
 
     const headers = {
         "Connection": "keep-alive",
@@ -79,7 +79,7 @@ async function getKarmaPoint(bearer) {
         "Accept-Encoding": "gzip, deflate, br",
         "Content-Type": "application/json",
         "x-request-source-extra": "android",
-        "authorization": `${bearer}` 
+        "authorization": `${bearer}`
     };
 
     try {
@@ -158,10 +158,11 @@ async function onBoarding(bearer) {
 async function checkIn(bearer) {
     const data = JSON.stringify({
         "operationName": null,
-        "variables": {},
-        "query": "{ getOnboarding { show expired user_id completed_all completed_at karma_available karma_paid karma_multiplier max_transaction_perday total_streaks_karma redeemed_karma tasks { task_id type name description content link deeplink completed completed_at karma_available karma_paid today_transactions hide_after_completion __typename } __typename } }"
+        "variables": {
+            "timezone": "Asia/Jakarta"
+        },
+        "query": "mutation ($timezone: String) {\n  setDailyCheckIn(timezone: $timezone)\n}\n"
     });
-
     try {
         const response = await axios.post("https://prod.haha.me/wallet-api/graphql", data, {
             headers: {
@@ -250,14 +251,14 @@ function updateTableData(accounts) {
     return new Promise(async (resolve) => {
         const tableData = await Promise.all(accounts.map(async (account, index) => {
             const log = await login(account.email, account.password);
+            const check = await checkIn(log.data.id_token);
             const karma = await getKarmaPoint(log.data.id_token);
             const referal = await getReferalInfo(log.data.id_token);
             const onBoard = await onBoarding(log.data.id_token);
-            const check = await checkIn(log.data.id_token);
             const getRankInfo = await getRank(log.data.id_token);
             const taskNotComplite = [];
             onBoard.data.data.getOnboarding.tasks.forEach(task => {
-                if(task.completed == false){
+                if (task.completed == false) {
                     taskNotComplite.push(task.name);
                 }
             });
@@ -325,9 +326,9 @@ async function main() {
     displayAppTitle()
 
     try {
-       
 
-        while (true){
+
+        while (true) {
             twisters.put(processId, { text: "🔄 Checking in..." });
             const accounts = await readAccounts();
             const updatedTable = await updateTableData(accounts);
@@ -343,7 +344,7 @@ async function main() {
             });
 
             const newRenderedTable = await renderTable(updatedTable);
-            twisters.put(tableId, { text: newRenderedTable,active: false });
+            twisters.put(tableId, { text: newRenderedTable, active: false });
             twisters.put(processId, { text: "✅ Table update completed!\n" + renderedTable });
             await countdown(24 * 60 * 60, processId);
 
