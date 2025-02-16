@@ -16,13 +16,6 @@ function generateWallet() {
     };
 }
 
-// (async() => {
-//     const lis = await listEmails('erling.schuppe@gmailku.my.id');
-//     // const code = lis[0].body.plaintext.match(/\d+/)[0];
-//     console.log(lis);
-//     process.exit(0);
-// })()
-
 const {
     Twisters,
     LineBuffer,
