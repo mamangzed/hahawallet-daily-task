@@ -3,7 +3,10 @@
     "axios": "^1.7.9",
     "chalk": "^2.4.2",
     "console-table-printer": "^2.12.1",
+    "ethers": "^6.13.5",
     "figlet": "^1.8.0",
+    "mail-genie": "^1.0.2",
+    "prompts": "^2.4.2",
     "twisters": "^1.1.0"
   }
 }
